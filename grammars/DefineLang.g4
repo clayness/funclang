@@ -6,7 +6,7 @@ import VarLang; //Import all rules from VarLang grammar.
 // followed by an optional expression.
 program returns [Program ast]
  		locals [
- 		    ArrayList<DefineDecl> defs = new ArrayList<DefineDecl>();
+ 		    ArrayList<DefineDecl> defs = new ArrayList<DefineDecl>();,
  		    Exp expr = new UnitExp();
         ] :
 		(def=definedecl { $defs.add($def.ast); } )* (e=exp { $expr = $e.ast; } )? 

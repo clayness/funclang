@@ -3,33 +3,32 @@ grammar FuncLang;
 import DefineLang; //Import all rules from DefineLang grammar.
 
  exp returns [Exp ast]: 
-		va=varexp { $ast = $va.ast; }
-		| num=numexp { $ast = $num.ast; }
-		| bl=boolexp { $ast = $bl.ast; }
-        | add=addexp { $ast = $add.ast; }
-        | sub=subexp { $ast = $sub.ast; }
-        | mul=multexp { $ast = $mul.ast; }
-        | div=divexp { $ast = $div.ast; }
-        | let=letexp { $ast = $let.ast; }
+		  va=varexp     { $ast = $va.ast; }
+		| num=numexp    { $ast = $num.ast; }
+		| bl=boolexp    { $ast = $bl.ast; }
+        | add=addexp    { $ast = $add.ast; }
+        | sub=subexp    { $ast = $sub.ast; }
+        | mul=multexp   { $ast = $mul.ast; }
+        | div=divexp    { $ast = $div.ast; }
+        | let=letexp    { $ast = $let.ast; }
         | lam=lambdaexp { $ast = $lam.ast; }
-        | call=callexp { $ast = $call.ast; }
-        | i=ifexp { $ast = $i.ast; }
-        | less=lessexp { $ast = $less.ast; }
-        | eq=equalexp { $ast = $eq.ast; }
+        | call=callexp  { $ast = $call.ast; }
+        | i=ifexp       { $ast = $i.ast; }
+        | less=lessexp  { $ast = $less.ast; }
+        | eq=equalexp   { $ast = $eq.ast; }
         | gt=greaterexp { $ast = $gt.ast; }
-        | car=carexp { $ast = $car.ast; }
-        | cdr=cdrexp { $ast = $cdr.ast; }
-        | cons=consexp { $ast = $cons.ast; }
-        | list=listexp { $ast = $list.ast; }
-        | nl=nullexp { $ast = $nl.ast; }
+        | car=carexp    { $ast = $car.ast; }
+        | cdr=cdrexp    { $ast = $cdr.ast; }
+        | cons=consexp  { $ast = $cons.ast; }
+        | list=listexp  { $ast = $list.ast; }
+        | nl=nullexp    { $ast = $nl.ast; }
         ;
 
  // New Expressions for FuncLang
 
  lambdaexp returns [LambdaExp ast] 
-        locals [ArrayList<String> formals ]
- 		@init { $formals = new ArrayList<String>(); } :
- 		'(' Lambda 
+        locals [ArrayList<String> formals = new ArrayList<String>(); ] :
+ 		'(' Lambda
  			'(' (id=Identifier { $formals.add($id.text); } )* ')'
  			body=exp 
  		')' { $ast = new LambdaExp($formals, $body.ast); }

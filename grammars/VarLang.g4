@@ -21,7 +21,7 @@ import ArithLang; //Import all rules from ArithLang grammar.
 
  letexp  returns [LetExp ast]
         locals [
-            ArrayList<String> names   = new ArrayList<String>();
+            ArrayList<String> names   = new ArrayList<String>();,
             ArrayList<Exp> value_exps = new ArrayList<Exp>();
         ] :
  		'(' Let
