@@ -1,6 +1,7 @@
 package funclang;
 
-import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Printer {
     public void print(Value v) {
@@ -18,10 +19,11 @@ public class Printer {
     public static class Formatter implements AST.Visitor<String> {
 
         public String visit(AST.AddExp e, Env env) {
-            StringBuilder result = new StringBuilder("(+ ");
-            for (AST.Exp exp : e.all())
-                result.append(exp.accept(this, env)).append(" ");
-            return result + ")";
+            return "(+ %s)".formatted(
+                    e.all().stream()
+                            .map(exp -> exp.accept(this, env))
+                            .map(Object::toString)
+                            .collect(Collectors.joining(" ")));
         }
 
         public String visit(AST.UnitExp e, Env env) {
@@ -38,28 +40,31 @@ public class Printer {
         }
 
         public String visit(AST.DivExp e, Env env) {
-            StringBuilder result = new StringBuilder("(/ ");
-            for (AST.Exp exp : e.all())
-                result.append(exp.accept(this, env)).append(" ");
-            return result + ")";
+            return "(/ %s)".formatted(
+                    e.all().stream()
+                            .map(exp -> exp.accept(this, env))
+                            .map(Object::toString)
+                            .collect(Collectors.joining(" ")));
         }
 
         public String visit(AST.MultExp e, Env env) {
-            StringBuilder result = new StringBuilder("(* ");
-            for (AST.Exp exp : e.all())
-                result.append(exp.accept(this, env)).append(" ");
-            return result + ")";
+            return "(* %s)".formatted(
+                    e.all().stream()
+                            .map(exp -> exp.accept(this, env))
+                            .map(Object::toString)
+                            .collect(Collectors.joining(" ")));
         }
 
         public String visit(AST.Program p, Env env) {
-            return "" + p.e().accept(this, env);
+            return p.e().accept(this, env);
         }
 
         public String visit(AST.SubExp e, Env env) {
-            StringBuilder result = new StringBuilder("(- ");
-            for (AST.Exp exp : e.all())
-                result.append(exp.accept(this, env)).append(" ");
-            return result + ")";
+            return "(- %s)".formatted(
+                    e.all().stream()
+                            .map(exp -> exp.accept(this, env))
+                            .map(Object::toString)
+                            .collect(Collectors.joining(" ")));
         }
 
         public String visit(AST.VarExp e, Env env) {
@@ -67,72 +72,93 @@ public class Printer {
         }
 
         public String visit(AST.LetExp e, Env env) {
-            StringBuilder result = new StringBuilder("(let (");
-            List<String> names = e.names();
-            List<AST.Exp> value_exps = e.value_exps();
-            int num_decls = names.size();
-            for (int i = 0; i < num_decls; i++) {
-                result.append(" (");
-                result.append(names.get(i)).append(" ");
-                result.append(value_exps.get(i).accept(this, env)).append(")");
-            }
-            result.append(") ");
-            result.append(e.body().accept(this, env)).append(" ");
-            return result + ")";
+            return "(let (%s) %s)".formatted(
+                    IntStream.range(0, e.names().size())
+                            .mapToObj(i -> "(%s %s)".formatted(
+                                    e.names().get(i),
+                                    e.value_exps().get(i).accept(this, env)))
+                            .map(Object::toString)
+                            .collect(Collectors.joining(" ")),
+                    e.body().accept(this, env)
+            );
         }
 
         public String visit(AST.DefineDecl d, Env env) {
-            return "(define %s %s)".formatted(d.name(), d.value_exp().accept(this, env));
+            return "(define %s %s)".formatted(
+                    d.name(),
+                    d.value_exp().accept(this, env));
         }
 
         @Override
         public String visit(AST.LambdaExp e, Env env) {
-            return "";
+            return "(lambda (%s) %s)".formatted(
+                    String.join(" ", e.formals()),
+                    e.body().accept(this, env));
         }
 
         @Override
         public String visit(AST.CallExp e, Env env) {
-            return "";
+            return "(%s %s)".formatted(
+                    e.operator().accept(this, env),
+                    e.operands().stream()
+                            .map(opnd -> opnd.accept(this, env))
+                            .map(Object::toString)
+                            .collect(Collectors.joining(" "))
+            );
         }
 
         @Override
         public String visit(AST.IfExp e, Env env) {
-            return "";
+            return "(if %s %s %s)".formatted(
+                    e.conditional().accept(this, env),
+                    e.then_exp().accept(this, env),
+                    e.else_exp().accept(this, env));
         }
 
         @Override
         public String visit(AST.LessExp e, Env env) {
-            return "";
+            return "(< %s %s)".formatted(
+                    e.first_exp().accept(this, env),
+                    e.second_exp().accept(this, env));
         }
 
         @Override
         public String visit(AST.EqualExp e, Env env) {
-            return "";
+            return "(= %s %s)".formatted(
+                    e.first_exp().accept(this, env),
+                    e.second_exp().accept(this, env));
         }
 
         @Override
         public String visit(AST.GreaterExp e, Env env) {
-            return "";
+            return "(> %s %s)".formatted(
+                    e.first_exp().accept(this, env),
+                    e.second_exp().accept(this, env));
         }
 
         @Override
         public String visit(AST.CarExp e, Env env) {
-            return "";
+            return "(car %s)".formatted(e.arg().accept(this, env));
         }
 
         @Override
         public String visit(AST.CdrExp e, Env env) {
-            return "";
+            return "(cdr %s)".formatted(e.arg().accept(this, env));
         }
 
         @Override
         public String visit(AST.ConsExp e, Env env) {
-            return "";
+            return "(cons %s %s)".formatted(
+                    e.fst().accept(this, env),
+                    e.snd().accept(this, env));
         }
 
         @Override
         public String visit(AST.ListExp e, Env env) {
-            return "";
+            return "(list %s)".formatted(e.elems().stream()
+                    .map(exp -> exp.accept(this, env))
+                    .map(Object::toString)
+                    .collect(Collectors.joining(" ")));
         }
 
         @Override
